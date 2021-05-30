@@ -1,0 +1,42 @@
+from decimal import *
+
+class ZłyNominalException(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value) 
+
+class Pieniadz():
+    
+    def __init__(self, wartosc):
+        wartosc = Decimal(float(wartosc)).quantize(Decimal('.01'), rounding = ROUND_DOWN)
+        allowed = list(map(Decimal, ['0.01', '0.02', '0.05',\
+         '0.1', '0.2', '0.5', '1', '2', '5', '10', '20', '50']))
+        if wartosc in allowed:
+            self._wartosc = wartosc
+        else:
+            raise ZłyNominalException(wartosc)
+        
+    def get_wartosc(self):
+        return self._wartosc
+    
+
+class Skarbonka():
+    
+    def __init__(self):
+        self._listanominalow = []
+        self.nominal = 0
+    
+    def add(self, coin):
+        if not isinstance(coin, Moneta):
+            print("Nieznany Nominał")
+            return
+        self._listanominalow.append(coin)
+        self.nominal += coin.get_wartosc()
+    
+    def get_bal(self):
+        return self.nominal
+
+    def get_time(self):
+        self.time = datetime.now().time()
+        return self.time
