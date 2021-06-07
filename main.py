@@ -1,0 +1,250 @@
+from decimal import *
+from datetime import *
+from tkinter import *
+import time
+import datetime
+
+weekDays = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+class BadNominalException(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+class Money():
+
+    def __init__(self, val):
+        val = Decimal(float(val)).quantize(Decimal('.01'), rounding=ROUND_DOWN)
+        allowed = list(map(Decimal, ['0.01', '0.02', '0.05', \
+                                     '0.1', '0.2', '0.5', '1', '2', '5', '10', '20', '50']))
+        if val in allowed:
+            self._val = val
+        else:
+            raise BadNominalException(val)
+
+    def get_val(self):
+        return self._val
+
+
+class ParkingMeter():
+
+    def __init__(self):
+        self._moneycount = dict.fromkeys(list(map(Decimal, ['0.01', '0.02', '0.05', \
+                                                            '0.1', '0.2', '0.5', '1', '2', '5'])), 0)
+        self._moneysum = 0
+
+    def add(self, coin):
+        if not isinstance(coin, Money):
+            print("zly nominal")
+            return
+        if coin.get_val() not in (10, 20, 50):
+            if self._moneycount[coin.get_val()] == 4:
+                print("Magazyn monet tego nominalu jest pelny")
+                return
+            else:
+                self._moneycount[coin.get_val()] += 1
+        self._moneysum += coin.get_val()
+        print("Dodano", coin.get_val(), "kredytu")
+
+    def get_bal(self):
+        return self._moneysum
+
+    def bilet_dlugosc(self):
+        # ilosc_minut = 0
+        a = self.get_bal()
+        if a <= 2.0:
+            self._ilosc_sekund = a / 2 * 60 * 60
+            return int(self._ilosc_sekund)
+        elif a <= 6.0:
+            a = a - 2
+            self._ilosc_sekund = (60 + (a / 4 * 60)) * 60
+            return int(self._ilosc_sekund)
+
+        else:
+            a = a - 6
+            self._ilosc_sekund = (120 + (a / 5 * 60)) * 60
+            return int(self._ilosc_sekund)
+
+    def dzien_tyg(self):
+        today = date.today()
+        self._dzien = today.weekday()
+        return self._dzien
+
+    def ile_do_20(self, data: datetime.datetime):
+        dwudziesta = data.replace(hour=20, minute=0, second=0, microsecond=0)
+        return (dwudziesta - data).total_seconds()
+
+    def bilet_do_kiedy(self):
+        # pobierz ile sekund wart jest bilet
+        zaplacone_sekundy = self.bilet_dlugosc()
+
+        # pobierz obecną date
+        # do_kiedy = obecna_data
+        do_kiedy = datetime.datetime.now()
+
+        # w petli aktualizuj do_kiedy
+        while zaplacone_sekundy != 0:
+            ## jeśli do_kiedy jest poza okresem płatnego parkowania, przesuń na początek najbliższego okresu płatnego parkowania
+            if do_kiedy.weekday() == 6:
+                do_kiedy += datetime.timedelta(1)
+                do_kiedy = do_kiedy.replace(hour=8, minute=0, second=0, microsecond=0)
+            if do_kiedy.weekday() == 5:
+                do_kiedy += datetime.timedelta(2)
+                do_kiedy = do_kiedy.replace(hour=8, minute=0, second=0, microsecond=0)
+
+            ## godzina okresu płatnego
+            if do_kiedy.hour >= 20:
+                do_kiedy += datetime.timedelta(1)
+                do_kiedy = do_kiedy.replace(hour=8, minute=0, second=0, microsecond=0)
+                continue
+            elif do_kiedy.hour < 8:
+                do_kiedy = do_kiedy.replace(hour=8, minute=0, second=0, microsecond=0)
+
+            ## pobierz ilość sekund -> ile_do_20(do_kiedy)  -> sekundy_do_20 = ile_do_20(do_kiedy)
+            sekundy_do_20 = self.ile_do_20(do_kiedy)
+
+            ## jeśli zaplacone_sekundy >= sekundy_do_20, do_kiedy += sekundy_do_20, sekundy_do_wykorzystania -= sekundy_do_20
+            if zaplacone_sekundy >= sekundy_do_20:
+                do_kiedy += datetime.timedelta(seconds=sekundy_do_20)
+                zaplacone_sekundy -= sekundy_do_20
+            else:
+                do_kiedy += datetime.timedelta(seconds=zaplacone_sekundy)
+                zaplacone_sekundy = 0
+                # koniec petli
+
+        return do_kiedy
+
+    def check_plate(self, plate):
+        if (len(plate) > 8 or len(plate) < 4):
+            print("Niepoprawny nr rejestracyjny")
+            return ""
+        elif not all(c.isdigit() or c.isupper() for c in plate):
+            print("Niepoprawny nr rejestracyjny")
+            return ""
+        else:
+            return plate
+
+    def main(self):
+        def przycisk0_01zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.01))
+            print(self.bilet_do_kiedy())
+        def przycisk0_02zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.02))
+            print(self.bilet_do_kiedy())
+        def przycisk0_05zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.05))
+            print(self.bilet_do_kiedy())
+        def przycisk0_1zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.1))
+            print(self.bilet_do_kiedy())
+        def przycisk0_2zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.2))
+            print(self.bilet_do_kiedy())
+        def przycisk0_5zl():
+            for x in range(ile_monet()):
+                self.add(Money(0.5))
+            print(self.bilet_do_kiedy())
+        def przycisk1zl():
+            for x in range(ile_monet()):
+                self.add(Money(1))
+            print(self.bilet_do_kiedy())
+        def przycisk2zl():
+            for x in range(ile_monet()):
+                self.add(Money(2))
+            print(self.bilet_do_kiedy())
+        def przycisk5zl():
+            for x in range(ile_monet()):
+                self.add(Money(5))
+            print(self.bilet_do_kiedy())
+        def przycisk10zl():
+            for x in range(ile_monet()):
+                self.add(Money(10))
+            print(self.bilet_do_kiedy())
+        def przycisk20zl():
+            for x in range(ile_monet()):
+                self.add(Money(20))
+            print(self.bilet_do_kiedy())
+        def przycisk50zl():
+            for x in range(ile_monet()):
+                self.add(Money(50))
+            print(self.bilet_do_kiedy())
+
+        okno = Tk()
+        okno.geometry('1000x500')
+
+
+        przycisk1 = Button(okno, text="przycisk 0_01", width=20, command=przycisk0_01zl, activebackground = 'green')
+        przycisk1.place(x=0,y=0)
+
+        przycisk2 = Button(okno, text="przycisk 0_02", width=20, command=przycisk0_02zl, activebackground = 'green')
+        przycisk2.place(x=150,y=0)
+
+        przycisk3 = Button(okno, text="przycisk 0_05", width=20, command=przycisk0_05zl, activebackground = 'green')
+        przycisk3.place(x=300,y=0)
+
+        przycisk4 = Button(okno, text="przycisk 0_1", width=20, command=przycisk0_1zl, activebackground = 'green')
+        przycisk4.place(x=450,y=0)
+
+        przycisk5 = Button(okno, text="przycisk 0_2", width=20, command=przycisk0_2zl, activebackground = 'green')
+        przycisk5.place(x=0,y=25)
+
+        przycisk6 = Button(okno, text="przycisk 0_5", width=20, command=przycisk0_5zl, activebackground = 'green')
+        przycisk6.place(x=150,y=25)
+
+        przycisk7 = Button(okno, text="przycisk 1", width=20, command=przycisk1zl, activebackground = 'green')
+        przycisk7.place(x=300,y=25)
+
+        przycisk8 = Button(okno, text="przycisk 2", width=20, command=przycisk2zl, activebackground = 'green')
+        przycisk8.place(x=450,y=25)
+
+        przycisk9 = Button(okno, text="przycisk 5", width=20, command=przycisk5zl, activebackground = 'green')
+        przycisk9.place(x=0,y=50)
+
+        przycisk10 = Button(okno, text="przycisk 10", width=20, command=przycisk10zl, activebackground = 'green')
+        przycisk10.place(x=150,y=50)
+
+        przycisk11 = Button(okno, text="przycisk 20", width=20, command=przycisk20zl, activebackground = 'green')
+        przycisk11.place(x=300,y=50)
+
+        przycisk12 = Button(okno, text="przycisk 50", width=20, command=przycisk50zl, activebackground = 'green')
+        przycisk12.place(x=450,y=50)
+
+        tablica = Entry(okno, width=24)
+        tablica.place(x=600,y=0)
+        def czytnie_tablicy():
+            print(tablica.get())
+            self.check_plate(tablica.get())
+        przycisk13 = Button(okno, text="Podaj Nr Tablicy", width=20, command=czytnie_tablicy, activebackground = 'green')
+        przycisk13.place(x=600,y=25)
+
+        def czas_okno():
+            aktualny_czas = time.strftime('%I:%M:%S:%p')
+            zegar['text'] = aktualny_czas
+            zegar.after(1000, czas_okno)
+
+        zegar = Label(okno,)
+        zegar.place(x=600, y = 50)
+
+        def ile_monet():
+            return int(ilosc_monet.get())
+        ilosc_monet = Entry(okno, width=24)
+        ilosc_monet.place(x=600, y=75)
+
+        czas_okno()
+        okno.mainloop()
+
+
+
+
+
+bankomat = ParkingMeter()
+bankomat.main()
