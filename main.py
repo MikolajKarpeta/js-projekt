@@ -1,6 +1,8 @@
 from decimal import *
 from datetime import *
 from tkinter import *
+from tkinter import messagebox
+from tkcalendar import *
 import time
 import datetime
 
@@ -86,6 +88,7 @@ class ParkingMeter():
         # do_kiedy = obecna_data
         do_kiedy = datetime.datetime.now()
 
+
         # w petli aktualizuj do_kiedy
         while zaplacone_sekundy != 0:
             ## jeśli do_kiedy jest poza okresem płatnego parkowania, przesuń na początek najbliższego okresu płatnego parkowania
@@ -119,60 +122,70 @@ class ParkingMeter():
         return do_kiedy
 
     def check_plate(self, plate):
-        if (len(plate) > 8 or len(plate) < 4):
-            print("Niepoprawny nr rejestracyjny")
+        if (len(plate) > 8 or len(plate) < 4) or not all(c.isdigit() or c.isupper() for c in plate):
+            messagebox.showerror("Niepoprawny nr rejestracyjny", "chujowe blachy")
             return ""
-        elif not all(c.isdigit() or c.isupper() for c in plate):
-            print("Niepoprawny nr rejestracyjny")
-            return ""
-        else:
-            return plate
+
+
+        return plate
+
 
     def main(self):
         def przycisk0_01zl():
             for x in range(ile_monet()):
                 self.add(Money(0.01))
             print(self.bilet_do_kiedy())
+
         def przycisk0_02zl():
             for x in range(ile_monet()):
                 self.add(Money(0.02))
             print(self.bilet_do_kiedy())
+
         def przycisk0_05zl():
             for x in range(ile_monet()):
                 self.add(Money(0.05))
             print(self.bilet_do_kiedy())
+
         def przycisk0_1zl():
             for x in range(ile_monet()):
                 self.add(Money(0.1))
             print(self.bilet_do_kiedy())
+
         def przycisk0_2zl():
             for x in range(ile_monet()):
                 self.add(Money(0.2))
             print(self.bilet_do_kiedy())
+
         def przycisk0_5zl():
             for x in range(ile_monet()):
                 self.add(Money(0.5))
             print(self.bilet_do_kiedy())
+
         def przycisk1zl():
             for x in range(ile_monet()):
                 self.add(Money(1))
             print(self.bilet_do_kiedy())
+
         def przycisk2zl():
             for x in range(ile_monet()):
                 self.add(Money(2))
             print(self.bilet_do_kiedy())
+
         def przycisk5zl():
             for x in range(ile_monet()):
                 self.add(Money(5))
             print(self.bilet_do_kiedy())
+
         def przycisk10zl():
             for x in range(ile_monet()):
                 self.add(Money(10))
             print(self.bilet_do_kiedy())
+
         def przycisk20zl():
             for x in range(ile_monet()):
                 self.add(Money(20))
             print(self.bilet_do_kiedy())
+
         def przycisk50zl():
             for x in range(ile_monet()):
                 self.add(Money(50))
@@ -181,69 +194,99 @@ class ParkingMeter():
         okno = Tk()
         okno.geometry('1000x500')
 
+        przycisk1 = Button(okno, text="Wrzuć \n 0.01zł", height=5, width=12, command=przycisk0_01zl,
+                           activebackground='green')
+        przycisk1.place(x=0, y=100)
 
-        przycisk1 = Button(okno, text="przycisk 0_01", width=20, command=przycisk0_01zl, activebackground = 'green')
-        przycisk1.place(x=0,y=0)
+        przycisk2 = Button(okno, text="Wrzuć \n 0.02zł", height=5, width=12, command=przycisk0_02zl,
+                           activebackground='green')
+        przycisk2.place(x=100, y=100)
 
-        przycisk2 = Button(okno, text="przycisk 0_02", width=20, command=przycisk0_02zl, activebackground = 'green')
-        przycisk2.place(x=150,y=0)
+        przycisk3 = Button(okno, text="Wrzuć \n 0.05zł", height=5, width=12, command=przycisk0_05zl,
+                           activebackground='green')
+        przycisk3.place(x=200, y=100)
 
-        przycisk3 = Button(okno, text="przycisk 0_05", width=20, command=przycisk0_05zl, activebackground = 'green')
-        przycisk3.place(x=300,y=0)
+        przycisk4 = Button(okno, text="Wrzuć \n 0.1zł", height=5, width=12, command=przycisk0_1zl,
+                           activebackground='green')
+        przycisk4.place(x=0, y=190)
 
-        przycisk4 = Button(okno, text="przycisk 0_1", width=20, command=przycisk0_1zl, activebackground = 'green')
-        przycisk4.place(x=450,y=0)
+        przycisk5 = Button(okno, text="Wrzuć \n 0.2zł", height=5, width=12, command=przycisk0_2zl,
+                           activebackground='green')
+        przycisk5.place(x=100, y=190)
 
-        przycisk5 = Button(okno, text="przycisk 0_2", width=20, command=przycisk0_2zl, activebackground = 'green')
-        przycisk5.place(x=0,y=25)
+        przycisk6 = Button(okno, text="Wrzuć \n 0.5zł", height=5, width=12, command=przycisk0_5zl,
+                           activebackground='green')
+        przycisk6.place(x=200, y=190)
 
-        przycisk6 = Button(okno, text="przycisk 0_5", width=20, command=przycisk0_5zl, activebackground = 'green')
-        przycisk6.place(x=150,y=25)
+        przycisk7 = Button(okno, text="Wrzuć \n 1zł", height=5, width=12, command=przycisk1zl, activebackground='green')
+        przycisk7.place(x=0, y=280)
 
-        przycisk7 = Button(okno, text="przycisk 1", width=20, command=przycisk1zl, activebackground = 'green')
-        przycisk7.place(x=300,y=25)
+        przycisk8 = Button(okno, text="Wrzuć \n 2zł", height=5, width=12, command=przycisk2zl, activebackground='green')
+        przycisk8.place(x=100, y=280)
 
-        przycisk8 = Button(okno, text="przycisk 2", width=20, command=przycisk2zl, activebackground = 'green')
-        przycisk8.place(x=450,y=25)
+        przycisk9 = Button(okno, text="Wrzuć \n 5zł", height=5, width=12, command=przycisk5zl, activebackground='green')
+        przycisk9.place(x=200, y=280)
 
-        przycisk9 = Button(okno, text="przycisk 5", width=20, command=przycisk5zl, activebackground = 'green')
-        przycisk9.place(x=0,y=50)
+        przycisk10 = Button(okno, text="Wrzuć \n 10zł", height=5, width=12, command=przycisk10zl,
+                            activebackground='green')
+        przycisk10.place(x=0, y=370)
 
-        przycisk10 = Button(okno, text="przycisk 10", width=20, command=przycisk10zl, activebackground = 'green')
-        przycisk10.place(x=150,y=50)
+        przycisk11 = Button(okno, text="Wrzuć \n 20zł", height=5, width=12, command=przycisk20zl,
+                            activebackground='green')
+        przycisk11.place(x=100, y=370)
 
-        przycisk11 = Button(okno, text="przycisk 20", width=20, command=przycisk20zl, activebackground = 'green')
-        przycisk11.place(x=300,y=50)
+        przycisk12 = Button(okno, text="Wrzuć \n 50zł", height=5, width=12, command=przycisk50zl,
+                            activebackground='green')
+        przycisk12.place(x=200, y=370)
 
-        przycisk12 = Button(okno, text="przycisk 50", width=20, command=przycisk50zl, activebackground = 'green')
-        przycisk12.place(x=450,y=50)
+        napis_tablica = Label(okno, text='Podaj Nr tablicy \nrejestracyjnej pojazdu', font='ariel 10', width=18,
+                              height=3)
+        napis_tablica.place(x=20, y=-5)
 
-        tablica = Entry(okno, width=24)
-        tablica.place(x=600,y=0)
+        napis_ile_monet = Label(okno, text='Podaj ilość \n monet', font='ariel 10', width=20, height=3)
+        napis_ile_monet.place(x=160, y=-5)
+        tablica = Entry(okno, width=21, font='ariel 12')
+        tablica.place(x=2, y=44)
+
         def czytnie_tablicy():
             print(tablica.get())
             self.check_plate(tablica.get())
-        przycisk13 = Button(okno, text="Podaj Nr Tablicy", width=20, command=czytnie_tablicy, activebackground = 'green')
-        przycisk13.place(x=600,y=25)
+
+        przycisk13 = Button(okno, text="Zatwierdź Nr Tablicy", width=26, command=czytnie_tablicy,
+                            activebackground='green')
+        przycisk13.place(x=2, y=70)
 
         def czas_okno():
             aktualny_czas = time.strftime('%I:%M:%S:%p')
             zegar['text'] = aktualny_czas
             zegar.after(1000, czas_okno)
 
-        zegar = Label(okno,)
-        zegar.place(x=600, y = 50)
+        zegar = Label(okno, font='ariel 18', width=12, height=2, bg='black', fg='red')
+        zegar.place(x=1000, y=20)
 
         def ile_monet():
             return int(ilosc_monet.get())
-        ilosc_monet = Entry(okno, width=24)
-        ilosc_monet.place(x=600, y=75)
+
+        ilosc_monet = Spinbox(from_=0, to=200, wrap=True, width=10)
+        ilosc_monet.place(x=199, y=44)
+
+
+        przycisk_zmiana_czasu = Button(okno, width = 30)
+        przycisk_zmiana_czasu.place(x=600, y=400)
+        hour = Spinbox(from_=8, to=20, wrap=True, width=2, state="readonly")
+        hour.place(x=500, y=100)
+        min = Spinbox(from_=0, to=59, wrap=True, width=2, state="readonly")
+        min.place(x=600, y=100)
+
+
+        zmiana_czasu = Entry(okno, width=21, font='ariel 12')
+        zmiana_czasu.place(x=600, y = 200)
+
+        cal = Calendar(okno, selectmode = 'day')
+        cal.place(x= 600, y=200)
 
         czas_okno()
         okno.mainloop()
-
-
-
 
 
 bankomat = ParkingMeter()
