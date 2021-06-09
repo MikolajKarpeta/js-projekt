@@ -38,6 +38,8 @@ class ParkingMeter():
         self._moneycount = dict.fromkeys(list(map(Decimal, ['0.01', '0.02', '0.05', \
                                                             '0.1', '0.2', '0.5', '1', '2', '5'])), 0)
         self._moneysum = 0
+        self._data_od_urzytkownika = datetime.datetime.now
+        self._czy_zmiana_czas = 1
 
     def add(self, coin):
         if not isinstance(coin, Money):
@@ -80,6 +82,8 @@ class ParkingMeter():
         dwudziesta = data.replace(hour=20, minute=0, second=0, microsecond=0)
         return (dwudziesta - data).total_seconds()
 
+
+
     def bilet_do_kiedy(self):
         # pobierz ile sekund wart jest bilet
         zaplacone_sekundy = self.bilet_dlugosc()
@@ -87,10 +91,15 @@ class ParkingMeter():
         # pobierz obecną date
         # do_kiedy = obecna_data
         do_kiedy = datetime.datetime.now()
-
+        if self._czy_zmiana_czas > 0:
+            do_kiedy = self._data_od_urzytkownika
 
         # w petli aktualizuj do_kiedy
         while zaplacone_sekundy != 0:
+
+
+
+
             ## jeśli do_kiedy jest poza okresem płatnego parkowania, przesuń na początek najbliższego okresu płatnego parkowania
             if do_kiedy.weekday() == 6:
                 do_kiedy += datetime.timedelta(1)
@@ -269,9 +278,12 @@ class ParkingMeter():
 
         ilosc_monet = Spinbox(from_=0, to=200, wrap=True, width=10)
         ilosc_monet.place(x=199, y=44)
+        def zmiana_czasu():
+            self._czy_zmiana_czas = self._czy_zmiana_czas + 1
+            self._data_od_urzytkownika = datetime.datetime.strptime(cal.get_date(), '%m/%d/%y')
+            self._data_od_urzytkownika = self._data_od_urzytkownika.replace(hour=int(hour.get()), minute=int(min.get()))
 
-
-        przycisk_zmiana_czasu = Button(okno, width = 30)
+        przycisk_zmiana_czasu = Button(okno, width = 30, command =zmiana_czasu)
         przycisk_zmiana_czasu.place(x=600, y=400)
         hour = Spinbox(from_=8, to=20, wrap=True, width=2, state="readonly")
         hour.place(x=500, y=100)
@@ -282,7 +294,7 @@ class ParkingMeter():
         zmiana_czasu = Entry(okno, width=21, font='ariel 12')
         zmiana_czasu.place(x=600, y = 200)
 
-        cal = Calendar(okno, selectmode = 'day')
+        cal = Calendar(okno)
         cal.place(x= 600, y=200)
 
         czas_okno()
