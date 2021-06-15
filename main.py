@@ -38,7 +38,7 @@ class ParkingMeter():
         self._moneycount = dict.fromkeys(list(map(Decimal, ['0.01', '0.02', '0.05', \
                                                             '0.1', '0.2', '0.5', '1', '2', '5'])), 0)
         self._moneysum = 0
-        self._data_od_urzytkownika = datetime.datetime.now
+        self._nowa_data = datetime.datetime.now
         self._czy_zmiana_czas = 1
 
     def add(self, coin):
@@ -91,13 +91,13 @@ class ParkingMeter():
         # pobierz obecną date
         # do_kiedy = obecna_data
         do_kiedy = datetime.datetime.now()
-        if self._czy_zmiana_czas > 0:
-            do_kiedy = self._data_od_urzytkownika
+
+        if self._czy_zmiana_czas > 1:
+            do_kiedy = self._nowa_data
+
 
         # w petli aktualizuj do_kiedy
         while zaplacone_sekundy != 0:
-
-
 
 
             ## jeśli do_kiedy jest poza okresem płatnego parkowania, przesuń na początek najbliższego okresu płatnego parkowania
@@ -198,6 +198,7 @@ class ParkingMeter():
         def przycisk50zl():
             for x in range(ile_monet()):
                 self.add(Money(50))
+
             print(self.bilet_do_kiedy())
 
         okno = Tk()
@@ -279,23 +280,52 @@ class ParkingMeter():
         ilosc_monet = Spinbox(from_=0, to=200, wrap=True, width=10)
         ilosc_monet.place(x=199, y=44)
         def zmiana_czasu():
+            YEAR = datetime.date.today().year
+            MONTH = datetime.date.today().month
+            DATE = datetime.date.today().day
+            HOUR = datetime.datetime.now().hour
+            MINUTE = datetime.datetime.now().minute
+            SECONDS = datetime.datetime.now().second
+
+            data = datetime.datetime.now
+            data = datetime.datetime.strptime(str(YEAR) + " " + str(MONTH) + " " + str(DATE) + " " + str(HOUR) + " " + str(MINUTE) + " " + str(SECONDS),'%Y %m %d %H %M %S')
             self._czy_zmiana_czas = self._czy_zmiana_czas + 1
             self._data_od_urzytkownika = datetime.datetime.strptime(cal.get_date(), '%m/%d/%y')
             self._data_od_urzytkownika = self._data_od_urzytkownika.replace(hour=int(hour.get()), minute=int(min.get()))
+            if self._data_od_urzytkownika < data:
+                messagebox.showerror("Niepoprawna data", "Została podana \n Zla data")
+            else:
+                self._nowa_data = self._data_od_urzytkownika
 
-        przycisk_zmiana_czasu = Button(okno, width = 30, command =zmiana_czasu)
-        przycisk_zmiana_czasu.place(x=600, y=400)
+        def wypisanie_biletu():            YEAR = datetime.date.today().year
+            YEAR = self._nowa_data.datetime.year
+            MONTH = self._nowa_data.datetime.month
+            DATE = self._nowa_data.datetime.day
+            HOUR = self._nowa_data.datetime.hour
+            MINUTE = self._nowa_data.datetime.minute
+            SECONDS = self._nowa_data.datetime.second
+            self._nowa_data = datetime.datetime.strptime
+            bilet = str("Numer rejestracyjny - " + self.check_plate(tablica.get())+"\n Godzina rozpoczęcia"+ str(YEAR) + " " + str(MONTH) + " " + str(DATE) + " " + str(HOUR) + " " + str(MINUTE) + " " + str(SECONDS))
+            messagebox.showinfo(title="BILET", message = bilet)
+
+        przycisk_zmiana_czasu = Button(okno,text = 'Zatwierdź \n Zmiane czasu', width = 17,height = 2, command =zmiana_czasu)
+        przycisk_zmiana_czasu.place(x=420, y=232)
         hour = Spinbox(from_=8, to=20, wrap=True, width=2, state="readonly")
-        hour.place(x=500, y=100)
+        hour.place(x=300, y=232)
+        godziny = Label(okno, text='Godziny', font='ariel 10', width=5, height=1)
+        godziny.place(x = 340, y= 232)
         min = Spinbox(from_=0, to=59, wrap=True, width=2, state="readonly")
-        min.place(x=600, y=100)
+        min.place(x=300, y=254)
+        minuty = Label(okno, text='Minuty', font='ariel 10', width=5, height=1)
+        minuty.place(x=340, y=254)
+        suma_wrzuconych_monet = Label(okno, text=self.get_bal(), font='ariel 10', width=5, height=1)
+        suma_wrzuconych_monet.place(x=400,y=400)
 
 
-        zmiana_czasu = Entry(okno, width=21, font='ariel 12')
-        zmiana_czasu.place(x=600, y = 200)
-
+        zatwierdz_bilet = Button(okno,  text='Zatwierdz Bilet',command = wypisanie_biletu, font='ariel 20', width=15, height=1)
+        zatwierdz_bilet.place(x=300,y=280)
         cal = Calendar(okno)
-        cal.place(x= 600, y=200)
+        cal.place(x= 300, y=44)
 
         czas_okno()
         okno.mainloop()
